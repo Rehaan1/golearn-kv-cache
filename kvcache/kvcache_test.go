@@ -5,13 +5,15 @@ import (
 	"testing"
 )
 
+type setEntry struct {
+	key   string
+	value []byte
+}
+
 func TestCache(t *testing.T) {
 	tests := []struct {
-		name   string
-		setups []struct {
-			key   string
-			value []byte
-		}
+		name      string
+		setups    []setEntry
 		getKey    string
 		wantValue []byte
 		wantOk    bool
@@ -24,23 +26,15 @@ func TestCache(t *testing.T) {
 			wantOk:    false,
 		},
 		{
-			name: "set then get same key returns hit",
-			setups: []struct {
-				key   string
-				value []byte
-			}{
-				{key: "a", value: []byte("hello")},
-			},
+			name:      "set then get same key returns hit",
+			setups:    []setEntry{{key: "a", value: []byte("hello")}},
 			getKey:    "a",
 			wantValue: []byte("hello"),
 			wantOk:    true,
 		},
 		{
 			name: "set same key twice, latest value wins",
-			setups: []struct {
-				key   string
-				value []byte
-			}{
+			setups: []setEntry{
 				{key: "a", value: []byte("first")},
 				{key: "a", value: []byte("second")},
 			},
@@ -49,13 +43,8 @@ func TestCache(t *testing.T) {
 			wantOk:    true,
 		},
 		{
-			name: "set empty value is still a hit",
-			setups: []struct {
-				key   string
-				value []byte
-			}{
-				{key: "empty", value: []byte{}},
-			},
+			name:      "set empty value is still a hit",
+			setups:    []setEntry{{key: "empty", value: []byte{}}},
 			getKey:    "empty",
 			wantValue: []byte{},
 			wantOk:    true,
@@ -63,6 +52,7 @@ func TestCache(t *testing.T) {
 	}
 
 	for _, tt := range tests {
+		tt := tt // see note below
 		t.Run(tt.name, func(t *testing.T) {
 			var c Cache
 
