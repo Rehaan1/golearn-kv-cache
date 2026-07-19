@@ -22,15 +22,15 @@ func (c *Cache) Set(key string, value []byte) {
 func (c *Cache) Get(key string) ([]byte, bool) {
 	value, exists := c.cache[key]
 
+	if !exists {
+		return nil, false
+	}
+
 	// NOTE@mazidrehaan: prevents caller from
 	// modifying the internal value of the cache
 	// after Get() is called
 	copied := make([]byte, len(value))
 	copy(copied, value)
-
-	if !exists {
-		return nil, false
-	}
 
 	return copied, exists
 }
